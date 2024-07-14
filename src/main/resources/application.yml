@@ -1,0 +1,20 @@
+server:
+  port: ${APP_PORT:8080}
+  tomcat:
+    uri-encoding: UTF-8
+logging:
+  level:
+    root: INFO
+spring:
+  application:
+    name: well-eater-backend
+  datasource:
+    url: jdbc:mysql://${WELL_EATER_DATABASE_HOST:localhost}:${WELL_EATER_DATABASE_PORT:3306}/${WELL_EATER_DATABASE:well_eater}
+    username: ${DATABASE_USER:root}
+    password: ${DATABASE_PASSWORD:root}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
