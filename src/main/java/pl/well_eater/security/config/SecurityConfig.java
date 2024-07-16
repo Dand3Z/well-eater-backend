@@ -36,7 +36,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationProvider authenticationProvider) throws Exception {
         return http.authorizeHttpRequests((auth) ->
-                auth.requestMatchers("auth/generateToken", "auth/register").permitAll()
+                auth.requestMatchers("auth/signup", "auth/login").permitAll()
                     .requestMatchers("/auth/hello").authenticated()
                 )
                 .httpBasic(Customizer.withDefaults()).csrf(AbstractHttpConfigurer::disable)

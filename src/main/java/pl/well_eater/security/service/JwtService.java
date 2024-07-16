@@ -3,12 +3,15 @@ package pl.well_eater.security.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +19,8 @@ import java.util.function.Function;
 
 @Component
 public class JwtService {
-    public static final String SECRET = "3295036a398ca5928467f50e725dd6f07f665c94607ea472e59415a2bb6ef052";
+    private static final String PRIVATE_KEY = "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgyUFuCX+A0CbwDhsZB7fwM3CGUe4xKvBcZcgJKgxJ26WhRANCAASH6uN0ldoxZsvEYICMKLJqE2NGvvZVBB4hRUowZFtSnABNKvrNjEFCWQhayR2YWBGS8Y2nz1n/OYoXqdxyHu/r";
+    private static final String PUBLIC_KEY = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEh+rjdJXaMWbLxGCAjCiyahNjRr72VQQeIUVKMGRbUpwATSr6zYxBQlkIWskdmFgRkvGNp89Z/zmKF6ncch7v6w==";
 
     private String createToken(Map<String, Object> claims, String username) {
         return Jwts.builder()
@@ -24,7 +28,8 @@ public class JwtService {
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 12 * 60 * 60 * 1000))
-                .signWith(getSignKey(), SignatureAlgorithm.ES256).compact();
+                .signWith(getPrivateKey(), SignatureAlgorithm.ES256)
+                .compact();
     }
 
     public String generateToken(String username) {
@@ -32,14 +37,31 @@ public class JwtService {
         return createToken(claims, username);
     }
 
-    private Key getSignKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
-        return Keys.hmacShaKeyFor(keyBytes);
+    private PrivateKey getPrivateKey() {
+        try {
+            byte[] keyBytes = Base64.getDecoder().decode(PRIVATE_KEY);
+            PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
+            KeyFactory keyFactory = KeyFactory.getInstance("EC");
+            return keyFactory.generatePrivate(spec);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load private key", e);
+        }
+    }
+
+    private PublicKey getPublicKey() {
+        try {
+            byte[] keyBytes = Base64.getDecoder().decode(PUBLIC_KEY);
+            X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+            KeyFactory keyFactory = KeyFactory.getInstance("EC");
+            return keyFactory.generatePublic(spec);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load public key", e);
+        }
     }
 
     private Claims extractClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(getSignKey())
+                .setSigningKey(getPublicKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
