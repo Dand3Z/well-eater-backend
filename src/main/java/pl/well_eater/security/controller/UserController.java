@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -31,13 +32,14 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<?> signupUser(@Valid @RequestBody SingUpRequest request) {
         if (userService.existsByUsername(request.getUsername())) {
+            log.error("Username {} already exists. Cannot to make new user with that username", request.getUsername());
             return ResponseEntity.badRequest().body("Username is already in use");
         }
 
         UserEntity user = new UserEntity();
         user.setUsername(request.getUsername());
         user.setPassword(request.getPassword());
-        UserEntity result = userService.registerUser(user);
+        UserEntity result = userService.signUpUser(user);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentContextPath().path("/user/me")
@@ -48,19 +50,17 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LogInRequest request) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
-        if (authentication.isAuthenticated()) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+            );
             String token = jwtService.generateToken(request.getUsername());
             return ResponseEntity.ok(token);
-        } else {
-            throw new UsernameNotFoundException("Username or password is incorrect");
+
+        } catch (BadCredentialsException e) {
+            log.error("Authentication failed for user {}", request.getUsername());
+            return ResponseEntity.badRequest().body("Invalid username or password");
         }
     }
 
-    @GetMapping("/hello")
-    public String hello() {
-        return "Hello World";
-    }
 }

@@ -17,7 +17,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import pl.well_eater.security.RestAuthenticationEntryPoint;
 import pl.well_eater.security.filter.JwtAuthFilter;
+import pl.well_eater.security.model.RoleEnum;
 import pl.well_eater.security.repository.UserRepository;
 import pl.well_eater.security.service.UserService;
 
@@ -36,9 +38,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationProvider authenticationProvider) throws Exception {
         return http.authorizeHttpRequests((auth) ->
-                auth.requestMatchers("auth/signup", "auth/login").permitAll()
-                    .requestMatchers("/auth/hello").authenticated()
+                auth.requestMatchers("/auth/**", "/", "/error").permitAll()
+                    .requestMatchers("/api/**").hasRole(RoleEnum.ROLE_USER.value)
+                    .requestMatchers("/admin/**").hasRole(RoleEnum.ROLE_ADMIN.value)
                 )
+                .formLogin(AbstractHttpConfigurer::disable)
+                .exceptionHandling((exceptionHandling) -> exceptionHandling.authenticationEntryPoint(new RestAuthenticationEntryPoint()))
                 .httpBasic(Customizer.withDefaults()).csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)

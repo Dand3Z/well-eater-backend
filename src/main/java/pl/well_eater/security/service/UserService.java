@@ -25,18 +25,16 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException(username));
     }
 
-    public UserEntity registerUser(UserEntity user) {
+    public UserEntity signUpUser(UserEntity user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRoles(RoleEnum.ROLE_USER.value);
+        user.setRoles(RoleEnum.ROLE_USER.toString());
         return userRepository.save(user);
     }
 
-    // TODO: impl
-    public String registerAdmin(UserEntity admin) {
+    public UserEntity signUpAdmin(UserEntity admin) {
         admin.setPassword(passwordEncoder.encode(admin.getPassword()));
-        admin.setRoles(RoleEnum.ROLE_ADMIN.value + "," + RoleEnum.ROLE_USER.value);
-        userRepository.save(admin);
-        return "Admin Added Successfully";
+        admin.setRoles(RoleEnum.ROLE_ADMIN + "," + RoleEnum.ROLE_USER);
+        return userRepository.save(admin);
     }
 
     public boolean existsByUsername(String username) {
