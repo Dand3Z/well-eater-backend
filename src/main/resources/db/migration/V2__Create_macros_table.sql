@@ -1,0 +1,7 @@
+CREATE TABLE macronutrients (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    kcal DOUBLE NOT NULL,
+    proteins DOUBLE NOT NULL,
+    fats DOUBLE NOT NULL,
+    carbs DOUBLE NOT NULL
+);
