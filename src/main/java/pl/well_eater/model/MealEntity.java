@@ -9,6 +9,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -37,4 +39,8 @@ public class MealEntity {
             orphanRemoval = true,
             fetch = FetchType.EAGER)
     private Set<MealFoodEntity> mealFoods = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "diet_day_id", nullable = false)
+    private DietDayEntity dietDay;
 }
