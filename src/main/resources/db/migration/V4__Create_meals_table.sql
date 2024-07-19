@@ -1,0 +1,6 @@
+CREATE TABLE meals (
+       id BIGINT NOT NULL AUTO_INCREMENT,
+       type VARCHAR(25) NOT NULL,
+       PRIMARY KEY (id)
+);
+
