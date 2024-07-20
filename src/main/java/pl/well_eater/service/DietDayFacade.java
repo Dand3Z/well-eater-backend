@@ -47,6 +47,17 @@ public class DietDayFacade {
         return dietDayDTO;
     }
 
+    public DietDayDTO getDietDay(Long dietDayId, UserDetails principal) {
+        Optional<DietDayEntity> dietDay = dietDayRepository.findById(dietDayId);
+        if (dietDay.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+        if (!isEditableByCurrentUser(dietDay.get(), principal)) {
+            throw new UnauthorizedRequestException();
+        }
+        return mapToDietDayDTO(dietDay.get(), mealService.mapToDietMealDTOs(dietDay.get().getMeals()));
+    }
+
     public void deleteDietDay(Long dietDayId, UserDetails principal) {
         Optional<DietDayEntity> dietDay = dietDayRepository.findById(dietDayId);
         if (dietDay.isEmpty()) {

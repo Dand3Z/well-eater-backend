@@ -8,6 +8,7 @@ import pl.well_eater.model.MealType;
 import pl.well_eater.repository.MealRepository;
 import pl.well_eater.dto.DietMealDTO;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,4 +30,11 @@ public class MealService {
         return mealFoodService.mapToDietMealDTOs(meals);
     }
 
+    DietMealDTO mapToDietMealDTO(MealEntity meal) {
+        return mealFoodService.mapToDietMealDTO(meal);
+    }
+
+    Set<DietMealDTO> mapToDietMealDTOs(Collection<MealEntity> meals) {
+        return mealFoodService.mapToDietMealDTOs(meals);
+    }
 }
