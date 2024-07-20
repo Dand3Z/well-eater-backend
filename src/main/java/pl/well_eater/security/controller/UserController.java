@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import pl.well_eater.security.dto.LogInRequest;
-import pl.well_eater.security.dto.SingUpRequest;
+import pl.well_eater.security.dto.AuthRequest;
 import pl.well_eater.security.model.UserEntity;
 import pl.well_eater.security.service.JwtService;
 import pl.well_eater.security.service.UserService;
@@ -31,7 +30,7 @@ public class UserController {
     private final AuthenticationManager authenticationManager;
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signupUser(@Valid @RequestBody SingUpRequest request) {
+    public ResponseEntity<?> signupUser(@Valid @RequestBody AuthRequest request) {
         if (userService.existsByUsername(request.getUsername())) {
             log.error("Username {} already exists. Cannot to make new user with that username", request.getUsername());
             return ResponseEntity.badRequest().body("Username is already in use");
@@ -50,7 +49,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LogInRequest request) {
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody AuthRequest request) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
