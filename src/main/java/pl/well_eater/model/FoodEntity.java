@@ -42,6 +42,10 @@ public class FoodEntity {
     @Column(name = "type", nullable = false)
     private FoodType type;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "unit", nullable = false)
+    private UnitType unit;
+
     @Column(name = "added_by")
     private String addedBy;
 
