@@ -30,4 +30,7 @@ public class MealFoodEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "food_id", nullable = false)
     private FoodEntity food;
+
+    @Column(name = "amount", nullable = false)
+    private double amount;
 }

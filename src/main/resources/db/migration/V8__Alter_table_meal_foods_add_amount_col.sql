@@ -1,0 +1,1 @@
+ALTER TABLE meal_foods ADD COLUMN amount DOUBLE NOT NULL;
