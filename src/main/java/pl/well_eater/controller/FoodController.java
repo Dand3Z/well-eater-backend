@@ -42,7 +42,7 @@ public class FoodController {
                                           @CurrentUser final UserDetails principal) {
         try {
             FoodEntity food = foodService.createFood(request, principal);
-            return ResponseEntity.created(new URI("/api/food/" + food.getId())).body(food);
+            return ResponseEntity.created(new URI("/api/food/get/" + food.getId())).body(food);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
