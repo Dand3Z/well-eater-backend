@@ -1,6 +1,5 @@
 package pl.well_eater.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.well_eater.dto.DietFoodDTO;
@@ -77,13 +76,8 @@ public class MealFoodService {
         mealFood.setFood(food);
         mealFood.setAmount(amount);
         mealFoodRepository.save(mealFood);
-        mealFood = getMealFood(mealFood);
+        mealFood = mealFoodRepository.findById(mealFood.getId()).orElseThrow(EntityNotFoundException::new);
         return mapToDietMealDTO(mealFood.getMeal());
-    }
-
-    @Transactional
-    protected MealFoodEntity getMealFood(MealFoodEntity mealFood) {
-        return mealFoodRepository.findById(mealFood.getId()).orElseThrow(EntityNotFoundException::new);
     }
 
     MealEntity findMealFor(long mealFoodId) {
