@@ -19,5 +19,5 @@ public class DietFoodDTO {
     private UnitType unit;
     private double amount;
     private long mealFoodId;
-    private Set<DietMacroDTO> macros = new HashSet<>();
+    private DietMacroDTO macros;
 }

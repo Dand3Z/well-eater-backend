@@ -1,14 +1,20 @@
 package pl.well_eater.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.well_eater.dto.DietFoodDTO;
+import pl.well_eater.dto.DietMacroDTO;
 import pl.well_eater.dto.DietMealDTO;
+import pl.well_eater.exception.EntityNotFoundException;
 import pl.well_eater.model.FoodEntity;
+import pl.well_eater.model.MacroEntity;
 import pl.well_eater.model.MealEntity;
+import pl.well_eater.model.MealFoodEntity;
 import pl.well_eater.repository.MealFoodRepository;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,6 +23,7 @@ import java.util.stream.Collectors;
 public class MealFoodService {
 
     private final MealFoodRepository mealFoodRepository;
+    private final FoodService foodService;
 
     DietMealDTO mapToDietMealDTO(MealEntity meal) {
         DietMealDTO mealDTO = new DietMealDTO();
@@ -24,7 +31,7 @@ public class MealFoodService {
         mealDTO.setMealType(meal.getType());
         if(hasFoodsAttached(meal)) {
             meal.getMealFoods().forEach(mealFood -> {
-                DietFoodDTO dietFood = mapToDietFood(mealFood.getFood(), mealFood.getId(), mealFood.getAmount());
+                DietFoodDTO dietFood = mapToDietFoodDTO(mealFood.getFood(), mealFood.getId(), mealFood.getAmount());
                 mealDTO.getFoods().add(dietFood);
             });
         }
@@ -37,7 +44,7 @@ public class MealFoodService {
                 .collect(Collectors.toSet());
     }
 
-    private DietFoodDTO mapToDietFood(FoodEntity food, long mealFoodId, double amount) {
+    private DietFoodDTO mapToDietFoodDTO(FoodEntity food, long mealFoodId, double amount) {
         DietFoodDTO foodDto = new DietFoodDTO();
         foodDto.setFoodId(food.getId());
         foodDto.setName(food.getName());
@@ -46,10 +53,60 @@ public class MealFoodService {
         foodDto.setUnit(food.getUnit());
         foodDto.setMealFoodId(mealFoodId);
         foodDto.setAmount(amount);
+        foodDto.setMacros(mapToDietMacroDTO(food.getMacros()));
         return foodDto;
+    }
+
+    private DietMacroDTO mapToDietMacroDTO(MacroEntity macro) {
+        DietMacroDTO macroDTO = new DietMacroDTO();
+        macroDTO.setKcal(macro.getKcal());
+        macroDTO.setProteins(macro.getProteins());
+        macroDTO.setFats(macro.getFats());
+        macroDTO.setCarbs(macro.getCarbs());
+        return macroDTO;
     }
 
     private boolean hasFoodsAttached(MealEntity meal) {
         return !meal.getMealFoods().isEmpty();
     }
+
+    public DietMealDTO addFoodToMeal(MealEntity meal, Long foodId, double amount) {
+        FoodEntity food = foodService.getFoodById(foodId);
+        MealFoodEntity mealFood = new MealFoodEntity();
+        mealFood.setMeal(meal);
+        mealFood.setFood(food);
+        mealFood.setAmount(amount);
+        mealFoodRepository.save(mealFood);
+        mealFood = getMealFood(mealFood);
+        return mapToDietMealDTO(mealFood.getMeal());
+    }
+
+    @Transactional
+    protected MealFoodEntity getMealFood(MealFoodEntity mealFood) {
+        return mealFoodRepository.findById(mealFood.getId()).orElseThrow(EntityNotFoundException::new);
+    }
+
+    MealEntity findMealFor(long mealFoodId) {
+        Optional<MealFoodEntity> mealFood = mealFoodRepository.findById(mealFoodId);
+        if (mealFood.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+        return mealFood.get().getMeal();
+    }
+
+    public void removeFoodFromMeal(long mealFoodId) {
+        mealFoodRepository.deleteById(mealFoodId);
+    }
+
+    public DietMealDTO editFoodFromMeal(long mealFoodId, double newAmount){
+        Optional<MealFoodEntity> mealFood = mealFoodRepository.findById(mealFoodId);
+        if (mealFood.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+        MealFoodEntity mealFoodEntity = mealFood.get();
+        mealFoodEntity.setAmount(newAmount);
+        mealFoodEntity = mealFoodRepository.save(mealFoodEntity);
+        return mapToDietMealDTO(mealFoodEntity.getMeal());
+    }
+
 }

@@ -99,6 +99,13 @@ public class FoodController {
         return PageRequest.of(page, size, sortOrder);
     }
 
+    @GetMapping("/get-all")
+    public ResponseEntity<?> getAllFood(@RequestParam(defaultValue = "0") int page,
+                                        @RequestParam(defaultValue = "10") int size) {
+        Page<FoodEntity> foodEntities = foodService.getAllFoods(preparePage(page, size));
+        return ResponseEntity.ok(foodEntities);
+    }
+
     @GetMapping("/search/by-type")
     public ResponseEntity<?> searchFoodByType(@RequestParam FoodType type,
                                                  @RequestParam(defaultValue = "0") int page,

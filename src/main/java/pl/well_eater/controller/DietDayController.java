@@ -14,6 +14,7 @@ import pl.well_eater.security.CurrentUser;
 import pl.well_eater.service.DietDayFacade;
 
 import java.net.URI;
+import java.time.LocalDate;
 
 @RequiredArgsConstructor
 @RestController
@@ -45,6 +46,13 @@ public class DietDayController {
         }
     }
 
+    @GetMapping("/get/by-date")
+    public ResponseEntity<?> getDietDays(@RequestParam final LocalDate startDate,
+                                         @RequestParam final LocalDate endDate,
+                                         @CurrentUser final UserDetails principal) {
+        return ResponseEntity.ok(dietDayFacade.getDietDaysBetween(startDate, endDate, principal));
+    }
+
     @DeleteMapping("/delete/{dietDayId}")
     public ResponseEntity<?> deleteDietDay(@Valid @PathVariable("dietDayId") final Long dietDayId,
                                            @CurrentUser final UserDetails principal) {
@@ -56,5 +64,24 @@ public class DietDayController {
         } catch (UnauthorizedRequestException e) {
             return ResponseEntity.status(e.getStatus()).build();
         }
+    }
+
+    @GetMapping("/get/{dietDayId}/stats")
+    public ResponseEntity<?> getDietDayStats(@Valid @PathVariable("dietDayId") final Long dietDayId,
+                                            @CurrentUser final UserDetails principal) {
+        try {
+            return ResponseEntity.ok(dietDayFacade.calculateDayStats(dietDayId, principal));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (UnauthorizedRequestException e) {
+            return ResponseEntity.status(e.getStatus()).build();
+        }
+    }
+
+    @GetMapping("/get/by-date/stats")
+    public ResponseEntity<?> getDietDaysStats(@RequestParam final LocalDate startDate,
+                                              @RequestParam final LocalDate endDate,
+                                              @CurrentUser final UserDetails principal) {
+        return ResponseEntity.ok(dietDayFacade.calculateDaysStats(startDate, endDate, principal));
     }
 }
