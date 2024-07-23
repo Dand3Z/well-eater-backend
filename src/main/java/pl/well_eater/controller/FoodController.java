@@ -9,7 +9,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import pl.well_eater.exception.EntityNotFoundException;
 import pl.well_eater.exception.UnauthorizedRequestException;
 import pl.well_eater.model.FoodCategory;
@@ -34,7 +42,7 @@ public class FoodController {
                                           @CurrentUser final UserDetails principal) {
         try {
             FoodEntity food = foodService.createFood(request, principal);
-            return ResponseEntity.created(new URI("/api/food/" + food.getId())).body(food);
+            return ResponseEntity.created(new URI("/api/food/get/" + food.getId())).body(food);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
@@ -89,6 +97,13 @@ public class FoodController {
     private Pageable preparePage(int page, int size) {
         Sort sortOrder = Sort.by(Sort.Direction.ASC, "name");
         return PageRequest.of(page, size, sortOrder);
+    }
+
+    @GetMapping("/get-all")
+    public ResponseEntity<?> getAllFood(@RequestParam(defaultValue = "0") int page,
+                                        @RequestParam(defaultValue = "10") int size) {
+        Page<FoodEntity> foodEntities = foodService.getAllFoods(preparePage(page, size));
+        return ResponseEntity.ok(foodEntities);
     }
 
     @GetMapping("/search/by-type")

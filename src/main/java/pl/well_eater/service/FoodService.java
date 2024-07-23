@@ -70,8 +70,12 @@ public class FoodService {
         return setFoodParams(food, request);
     }
 
-    public FoodEntity getFoodById(Long productId) {
-        return foodRepository.findById(productId).orElseThrow(EntityNotFoundException::new);
+    public FoodEntity getFoodById(Long foodId) {
+        return foodRepository.findById(foodId).orElseThrow(EntityNotFoundException::new);
+    }
+
+    public Page<FoodEntity> getAllFoods(Pageable pageable) {
+        return foodRepository.findAll(pageable);
     }
 
     public void deleteFoodById(Long foodId, UserDetails principal) {
