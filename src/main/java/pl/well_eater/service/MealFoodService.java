@@ -1,5 +1,9 @@
 package pl.well_eater.service;
 
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.well_eater.dto.DietFoodDTO;
@@ -21,6 +25,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MealFoodService {
 
+    @PersistenceContext
+    private final EntityManager entityManager;
     private final MealFoodRepository mealFoodRepository;
     private final FoodService foodService;
 
@@ -69,15 +75,20 @@ public class MealFoodService {
         return !meal.getMealFoods().isEmpty();
     }
 
+    @Transactional
     public DietMealDTO addFoodToMeal(MealEntity meal, Long foodId, double amount) {
         FoodEntity food = foodService.getFoodById(foodId);
+        if (mealFoodRepository.existsByMealAndFood(meal, food)) {
+            throw new EntityExistsException();
+        }
         MealFoodEntity mealFood = new MealFoodEntity();
         mealFood.setMeal(meal);
         mealFood.setFood(food);
         mealFood.setAmount(amount);
         mealFoodRepository.save(mealFood);
-        mealFood = mealFoodRepository.findById(mealFood.getId()).orElseThrow(EntityNotFoundException::new);
-        return mapToDietMealDTO(mealFood.getMeal());
+        entityManager.flush();
+        entityManager.refresh(meal);
+        return mapToDietMealDTO(meal);
     }
 
     MealEntity findMealFor(long mealFoodId) {
@@ -92,6 +103,7 @@ public class MealFoodService {
         mealFoodRepository.deleteById(mealFoodId);
     }
 
+    @Transactional
     public DietMealDTO editFoodFromMeal(long mealFoodId, double newAmount){
         Optional<MealFoodEntity> mealFood = mealFoodRepository.findById(mealFoodId);
         if (mealFood.isEmpty()) {
@@ -100,6 +112,8 @@ public class MealFoodService {
         MealFoodEntity mealFoodEntity = mealFood.get();
         mealFoodEntity.setAmount(newAmount);
         mealFoodEntity = mealFoodRepository.save(mealFoodEntity);
+        entityManager.flush();
+        entityManager.refresh(mealFoodEntity);
         return mapToDietMealDTO(mealFoodEntity.getMeal());
     }
 

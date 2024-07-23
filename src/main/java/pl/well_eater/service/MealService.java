@@ -1,5 +1,7 @@
 package pl.well_eater.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,6 +27,8 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class MealService {
 
+    @PersistenceContext
+    private final EntityManager entityManager;
     private final MealRepository mealRepository;
     private final MealFoodService mealFoodService;
 
@@ -59,18 +63,17 @@ public class MealService {
         return principal.getUsername().equals(meal.getDietDay().getUsername()) || principal.getAuthorities().contains(new SimpleGrantedAuthority(RoleEnum.ROLE_ADMIN.toString()));
     }
 
+    @Transactional
     public DietMealDTO removeFoodFromMeal(long mealFoodId, UserDetails principal) {
         MealEntity meal = mealFoodService.findMealFor(mealFoodId);
         if (!isEditableByCurrentUser(meal, principal)) {
             throw new UnauthorizedRequestException();
         }
         mealFoodService.removeFoodFromMeal(mealFoodId);
-        Optional<MealEntity> updatedMeal = mealRepository.findById(meal.getId());
-        if (updatedMeal.isPresent())  {
-            return mapToDietMealDTO(updatedMeal.get());
-        } else {
-            throw new EntityNotFoundException();
-        }
+        entityManager.clear();
+        meal = mealRepository.findById(meal.getId()).orElseThrow(EntityNotFoundException::new);
+
+        return mapToDietMealDTO(meal);
     }
 
     public DietMealDTO editFoodFromMeal(long mealFoodId, double newAmount, UserDetails principal) {

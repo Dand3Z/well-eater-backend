@@ -128,10 +128,14 @@ public class DietDayFacade {
                     totalStats.setFats(totalStats.getFats() + currentStats.getFats());
                     totalStats.setCarbs(totalStats.getCarbs() + currentStats.getCarbs());
                 });
-        totalStats.setKcal(totalStats.getKcal() / dietDays.size());
-        totalStats.setProteins(totalStats.getProteins() / dietDays.size());
-        totalStats.setFats(totalStats.getFats() / dietDays.size());
-        totalStats.setCarbs(totalStats.getCarbs() / dietDays.size());
+        totalStats.setKcal(setDoubleDecimalPlaces(totalStats.getKcal() / dietDays.size()));
+        totalStats.setProteins(setDoubleDecimalPlaces(totalStats.getProteins() / dietDays.size()));
+        totalStats.setFats(setDoubleDecimalPlaces(totalStats.getFats() / dietDays.size()));
+        totalStats.setCarbs(setDoubleDecimalPlaces(totalStats.getCarbs() / dietDays.size()));
         return daysStatsDTO;
+    }
+
+    private double setDoubleDecimalPlaces(double value) {
+        return Math.round(value * 100) / 100.0;
     }
 }
