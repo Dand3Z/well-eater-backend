@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pl.well_eater.security.dto.AuthRequest;
+import pl.well_eater.security.dto.TokenResponse;
 import pl.well_eater.security.model.UserEntity;
 import pl.well_eater.security.service.JwtService;
 import pl.well_eater.security.service.UserService;
@@ -55,7 +56,8 @@ public class UserController {
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
             String token = jwtService.generateToken(request.getUsername());
-            return ResponseEntity.ok(token);
+            TokenResponse tokenResponse = new TokenResponse(token);
+            return ResponseEntity.ok(tokenResponse);
 
         } catch (BadCredentialsException e) {
             log.error("Authentication failed for user {}", request.getUsername());
