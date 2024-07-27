@@ -13,4 +13,5 @@ public class DietMealDTO {
     private Long mealId;
     private MealType mealType;
     private Set<DietFoodDTO> foods = new HashSet<>();
+    private MealsStatsDTO stats;
 }

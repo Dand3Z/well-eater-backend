@@ -48,7 +48,11 @@ public class MealService {
     }
 
     Set<DietMealDTO> mapToDietMealDTOs(Collection<MealEntity> meals) {
-        return mealFoodService.mapToDietMealDTOs(meals);
+        Set<DietMealDTO> mealsDtos = mealFoodService.mapToDietMealDTOs(meals);
+//        mealsDtos.forEach(meal -> {
+//            meal.setStats(mealFoodService.calculateMealStats(meal));
+//        });
+        return mealsDtos;
     }
 
     public DietMealDTO addFoodToMeal(long mealId, long foodId, double amount, UserDetails principal) {
@@ -82,25 +86,6 @@ public class MealService {
             throw new UnauthorizedRequestException();
         }
         return mealFoodService.editFoodFromMeal(mealFoodId, newAmount);
-    }
-
-    MealsStatsDTO calculateMealsStats(Collection<MealEntity> meals) {
-        MealsStatsDTO mealsStatsDTO = new MealsStatsDTO();
-        meals.forEach(meal ->
-                meal.getMealFoods().forEach(mealFoods -> {
-                    double amount = mealFoods.getAmount();
-                    MacroEntity currentMacro = mealFoods.getFood().getMacros();
-                    mealsStatsDTO.setKcal(calculateMacroValue(mealsStatsDTO.getKcal(), currentMacro.getKcal(), amount));
-                    mealsStatsDTO.setProteins(calculateMacroValue(mealsStatsDTO.getProteins(), currentMacro.getProteins(), amount));
-                    mealsStatsDTO.setFats(calculateMacroValue(mealsStatsDTO.getFats(), currentMacro.getFats(), amount));
-                    mealsStatsDTO.setCarbs(calculateMacroValue(mealsStatsDTO.getCarbs(), currentMacro.getCarbs(), amount));
-                }));
-        return mealsStatsDTO;
-    }
-
-    private double calculateMacroValue(double actualSum, double macroValue, double amount) {
-        double value = actualSum + macroValue * amount / 100;
-        return Math.round(value * 100) / 100.0;
     }
 
     public DietMealDTO getMealById(long mealId, UserDetails principal) {

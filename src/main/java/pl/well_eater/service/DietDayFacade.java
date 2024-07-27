@@ -19,6 +19,7 @@ import pl.well_eater.security.model.RoleEnum;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -72,12 +73,21 @@ public class DietDayFacade {
         if (!isEditableByCurrentUser(optionalDay.get(), principal)) {
             throw new UnauthorizedRequestException();
         }
-        return mapToDietDayDTO(optionalDay.get(), mealService.mapToDietMealDTOs(optionalDay.get().getMeals()));
+        DietDayEntity dietDayEntity = optionalDay.get();
+        DietDayDTO dietDayDTO = mapToDietDayDTO(dietDayEntity, mealService.mapToDietMealDTOs(dietDayEntity.getMeals()));
+        dietDayDTO.setStats(calculateDayStats(dietDayEntity));
+        return dietDayDTO;
     }
 
     public Set<DietDayDTO> getDietDaysBetween(LocalDate startDate, LocalDate endDate, UserDetails principal) {
         Set<DietDayEntity> dietDays = dietDayRepository.findAllByDietDateBetweenAndUsername(startDate, endDate, principal.getUsername());
-        return mapToDietDayDtos(dietDays);
+        Set<DietDayDTO> dietDayDTOs = mapToDietDayDtos(dietDays);
+        dietDayDTOs.forEach(dietDayDto ->
+                dietDayDto.setStats(calculateDayStats(dietDays.stream()
+                        .filter(dietDay -> Objects.equals(dietDayDto.getDietDayId(), dietDay.getId()))
+                        .findFirst()
+                        .orElseThrow())));
+        return dietDayDTOs;
     }
 
 
@@ -111,7 +121,7 @@ public class DietDayFacade {
     private DayStatsDTO calculateDayStats(DietDayEntity dietDay) {
         DayStatsDTO statsDTO = new DayStatsDTO();
         statsDTO.setDate(dietDay.getDietDate());
-        statsDTO.setStats(mealService.calculateMealsStats(dietDay.getMeals()));
+        statsDTO.setStats(mealFoodService.calculateMealsStats(dietDay.getMeals()));
         return statsDTO;
     }
 

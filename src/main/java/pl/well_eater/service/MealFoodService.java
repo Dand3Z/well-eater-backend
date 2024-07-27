@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import pl.well_eater.dto.DietFoodDTO;
 import pl.well_eater.dto.DietMacroDTO;
 import pl.well_eater.dto.DietMealDTO;
+import pl.well_eater.dto.MealsStatsDTO;
 import pl.well_eater.exception.EntityNotFoundException;
 import pl.well_eater.model.FoodEntity;
 import pl.well_eater.model.MacroEntity;
@@ -40,14 +41,21 @@ public class MealFoodService {
                 mealDTO.getFoods().add(dietFood);
             });
         }
+        mealDTO.setStats(calculateMealStats(meal));
         return mealDTO;
     }
 
     Set<DietMealDTO> mapToDietMealDTOs(Collection<MealEntity> meals) {
         return meals.stream()
-                .map(this::mapToDietMealDTO)
+                .map(meal -> {
+                    DietMealDTO dietMealDto = mapToDietMealDTO(meal);
+                    dietMealDto.setStats(calculateMealStats(meal));
+                    return dietMealDto;
+                })
                 .collect(Collectors.toSet());
     }
+
+
 
     private DietFoodDTO mapToDietFoodDTO(FoodEntity food, long mealFoodId, double amount) {
         DietFoodDTO foodDto = new DietFoodDTO();
@@ -115,6 +123,34 @@ public class MealFoodService {
         entityManager.flush();
         entityManager.refresh(mealFoodEntity);
         return mapToDietMealDTO(mealFoodEntity.getMeal());
+    }
+
+    MealsStatsDTO calculateMealsStats(Collection<MealEntity> meals) {
+        MealsStatsDTO mealsStatsDTO = new MealsStatsDTO();
+        meals.forEach(meal -> calculateMealStats(meal, mealsStatsDTO));
+        return mealsStatsDTO;
+    }
+
+    MealsStatsDTO calculateMealStats(MealEntity meal) {
+        MealsStatsDTO mealsStatsDTO = new MealsStatsDTO();
+        return calculateMealStats(meal, mealsStatsDTO);
+    }
+
+    MealsStatsDTO calculateMealStats(MealEntity meal, MealsStatsDTO mealsStatsDTO) {
+        meal.getMealFoods().forEach(mealFoods -> {
+            double amount = mealFoods.getAmount();
+            MacroEntity currentMacro = mealFoods.getFood().getMacros();
+            mealsStatsDTO.setKcal(calculateMacroValue(mealsStatsDTO.getKcal(), currentMacro.getKcal(), amount));
+            mealsStatsDTO.setProteins(calculateMacroValue(mealsStatsDTO.getProteins(), currentMacro.getProteins(), amount));
+            mealsStatsDTO.setFats(calculateMacroValue(mealsStatsDTO.getFats(), currentMacro.getFats(), amount));
+            mealsStatsDTO.setCarbs(calculateMacroValue(mealsStatsDTO.getCarbs(), currentMacro.getCarbs(), amount));
+        });
+        return mealsStatsDTO;
+    }
+
+    private double calculateMacroValue(double actualSum, double macroValue, double amount) {
+        double value = actualSum + macroValue * amount / 100;
+        return Math.round(value * 100) / 100.0;
     }
 
 }

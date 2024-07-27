@@ -14,4 +14,5 @@ public class DietDayDTO {
     private LocalDate date;
     private String username;
     private Set<DietMealDTO> meals = new HashSet<>();
+    private DayStatsDTO stats;
 }
