@@ -23,8 +23,6 @@ public class MealController {
 
     private final MealService mealService;
 
-    // returns old version of food -> repair it\
-    // block adding second time same food to meal
     @PostMapping("/add-food")
     ResponseEntity<?> addFoodToMeal(@RequestBody @NotNull final AddFoodToMealRequest request,
                                     @CurrentUser UserDetails principal) {
@@ -36,7 +34,6 @@ public class MealController {
         }
     }
 
-    // it works, return good state
     @PatchMapping("/edit-food/{mealFoodId}")
     ResponseEntity<?> editFoodInMeal(@Valid @PathVariable("mealFoodId") final Long mealFoodId,
                                      @RequestBody @NotNull final EditFoodInMealRequest request,
@@ -49,7 +46,6 @@ public class MealController {
         }
     }
 
-    // it returns old state
     @DeleteMapping("/delete-food/{mealFoodId}")
     ResponseEntity<?> deleteFoodFromMeal(@Valid @PathVariable("mealFoodId") final Long mealFoodId,
                                          @CurrentUser UserDetails principal) {
