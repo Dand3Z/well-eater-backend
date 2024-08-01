@@ -103,9 +103,7 @@ public class FoodService {
         return foodRepository.findAllByNameContainingIgnoreCase(substring, pageable);
     }
 
-    public Set<FoodEntity> searchFoodAddedByCurrentUser(UserDetails principal) {
-        return foodRepository.findAllByAddedBy(principal.getUsername());
+    public Page<FoodEntity> searchFoodAddedByCurrentUser(UserDetails principal, Pageable pageable) {
+        return foodRepository.findAllByAddedBy(principal.getUsername(), pageable);
     }
-
-
 }

@@ -28,7 +28,6 @@ import pl.well_eater.security.CurrentUser;
 import pl.well_eater.service.FoodService;
 
 import java.net.URI;
-import java.util.Set;
 
 @RequiredArgsConstructor
 @RestController
@@ -133,8 +132,10 @@ public class FoodController {
     }
 
     @GetMapping("/search/created-by-me")
-    public ResponseEntity<?> searchFoodAddedByCurrentUser(@CurrentUser final UserDetails principal) {
-        Set<FoodEntity> foodEntities = foodService.searchFoodAddedByCurrentUser(principal);
+    public ResponseEntity<?> searchFoodAddedByCurrentUser(@CurrentUser final UserDetails principal,
+                                                          @RequestParam(defaultValue = "0") int page,
+                                                          @RequestParam(defaultValue = "10") int size) {
+        Page<FoodEntity> foodEntities = foodService.searchFoodAddedByCurrentUser(principal, preparePage(page, size));
         return ResponseEntity.ok(foodEntities);
     }
 }
