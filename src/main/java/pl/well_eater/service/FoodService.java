@@ -28,6 +28,7 @@ public class FoodService {
         MacroEntity macro = new MacroEntity();
         macro = setMacroParams(macro, request);
         FoodEntity food = new FoodEntity();
+        food.setToDelete(false);
         return setFoodParams(food, request, principal.getUsername(), macro);
     }
 
