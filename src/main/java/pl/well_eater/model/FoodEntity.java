@@ -54,6 +54,10 @@ public class FoodEntity {
     private MacroEntity macros;
 
     @JsonIgnore
+    @Column(name = "to_delete")
+    private Boolean toDelete;
+
+    @JsonIgnore
     @OneToMany(mappedBy = "food", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<MealFoodEntity> mealFoods = new HashSet<>();
 }

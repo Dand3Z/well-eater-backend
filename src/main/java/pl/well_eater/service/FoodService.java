@@ -17,8 +17,6 @@ import pl.well_eater.request.CreateFoodRequest;
 import pl.well_eater.exception.EntityNotFoundException;
 import pl.well_eater.security.model.RoleEnum;
 
-import java.util.Set;
-
 @Service
 @RequiredArgsConstructor
 public class FoodService {
@@ -46,7 +44,15 @@ public class FoodService {
     }
 
     private boolean isEditableByCurrentUser(FoodEntity food, UserDetails principal) {
-        return principal.getUsername().equals(food.getAddedBy()) || principal.getAuthorities().contains(new SimpleGrantedAuthority(RoleEnum.ROLE_ADMIN.toString()));
+        return isOwner(food, principal) || isAdmin(principal);
+    }
+
+    private boolean isAdmin(UserDetails principal) {
+        return principal.getAuthorities().contains(new SimpleGrantedAuthority(RoleEnum.ROLE_ADMIN.toString()));
+    }
+
+    private boolean isOwner(FoodEntity food, UserDetails principal) {
+        return principal.getUsername().equals(food.getAddedBy());
     }
 
     private MacroEntity setMacroParams(MacroEntity macro, CreateFoodRequest request) {
@@ -80,12 +86,33 @@ public class FoodService {
     }
 
     public void deleteFoodById(Long foodId, UserDetails principal) {
+        if(!isAdmin(principal)) {
+            throw new UnauthorizedRequestException();
+        }
+        foodRepository.deleteById(foodId);
+    }
+
+    public void markFoodToDeleteById(Long foodId, UserDetails principal) {
         FoodEntity food = getFoodById(foodId);
 
         if(!isEditableByCurrentUser(food, principal)) {
             throw new UnauthorizedRequestException();
         }
-        foodRepository.deleteById(foodId);
+
+        food.setToDelete(true);
+        foodRepository.save(food);
+    }
+
+    public void unmarkFoodToDeleteById(Long foodId, UserDetails principal) {
+        FoodEntity food = getFoodById(foodId);
+
+        if(!isEditableByCurrentUser(food, principal)) {
+            throw new UnauthorizedRequestException();
+        }
+
+        food.setToDelete(false);
+        food.setAddedBy("system");
+        foodRepository.save(food);
     }
 
     public Page<FoodEntity> searchFoodByType(FoodType type, Pageable pageable) {
@@ -105,6 +132,13 @@ public class FoodService {
     }
 
     public Page<FoodEntity> searchFoodAddedByCurrentUser(UserDetails principal, Pageable pageable) {
-        return foodRepository.findAllByAddedBy(principal.getUsername(), pageable);
+        return foodRepository.findAllByAddedByAndToDelete(principal.getUsername(), false, pageable);
+    }
+
+    public Page<FoodEntity> getAllMarkedToDelete(UserDetails principal, Pageable pageable) {
+        if(!isAdmin(principal)) {
+            throw new UnauthorizedRequestException();
+        }
+        return foodRepository.findAllByToDelete(true, pageable);
     }
 }
