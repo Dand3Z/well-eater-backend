@@ -61,6 +61,7 @@ public class FoodService {
         food.setName(request.getName());
         food.setCategory(request.getCategory());
         food.setType(request.getType());
+        food.setUnit(request.getUnit());
         return foodRepository.save(food);
     }
 
