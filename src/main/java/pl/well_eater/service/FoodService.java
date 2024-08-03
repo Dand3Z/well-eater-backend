@@ -44,14 +44,14 @@ public class FoodService {
     }
 
     private boolean isEditableByCurrentUser(FoodEntity food, UserDetails principal) {
-        return isCurrentUser(food, principal) || isAdmin(principal);
+        return isOwner(food, principal) || isAdmin(principal);
     }
 
     private boolean isAdmin(UserDetails principal) {
         return principal.getAuthorities().contains(new SimpleGrantedAuthority(RoleEnum.ROLE_ADMIN.toString()));
     }
 
-    private boolean isCurrentUser(FoodEntity food, UserDetails principal) {
+    private boolean isOwner(FoodEntity food, UserDetails principal) {
         return principal.getUsername().equals(food.getAddedBy());
     }
 
