@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +21,8 @@ import pl.well_eater.security.service.JwtService;
 import pl.well_eater.security.service.UserService;
 
 import java.net.URI;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -55,8 +59,14 @@ public class UserController {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
+
             String token = jwtService.generateToken(request.getUsername());
-            TokenResponse tokenResponse = new TokenResponse(token);
+            UserDetails userDetails = userService.loadUserByUsername(request.getUsername());
+            Set<String> roles = userDetails.getAuthorities()
+                    .stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toSet());
+            TokenResponse tokenResponse = new TokenResponse(token, roles);
             return ResponseEntity.ok(tokenResponse);
 
         } catch (BadCredentialsException e) {
