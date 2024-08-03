@@ -4,13 +4,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -18,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import pl.well_eater.exception.EntityNotFoundException;
 import pl.well_eater.exception.UnauthorizedRequestException;
 import pl.well_eater.model.FoodCategory;
@@ -28,6 +26,8 @@ import pl.well_eater.security.CurrentUser;
 import pl.well_eater.service.FoodService;
 
 import java.net.URI;
+
+import static pl.well_eater.controller.PageConfig.preparePageSortedASC;
 
 @RequiredArgsConstructor
 @RestController
@@ -89,19 +89,14 @@ public class FoodController {
     public ResponseEntity<?> searchFoodByCategory(@RequestParam FoodCategory category,
                                                      @RequestParam(defaultValue = "0") int page,
                                                      @RequestParam(defaultValue = "10") int size) {
-        Page<FoodEntity> foodEntities = foodService.searchFoodByCategory(category, preparePage(page, size));
+        Page<FoodEntity> foodEntities = foodService.searchFoodByCategory(category, preparePageSortedASC(page, size));
         return ResponseEntity.ok(foodEntities);
-    }
-
-    private Pageable preparePage(int page, int size) {
-        Sort sortOrder = Sort.by(Sort.Direction.ASC, "name");
-        return PageRequest.of(page, size, sortOrder);
     }
 
     @GetMapping("/get-all")
     public ResponseEntity<?> getAllFood(@RequestParam(defaultValue = "0") int page,
                                         @RequestParam(defaultValue = "10") int size) {
-        Page<FoodEntity> foodEntities = foodService.getAllFoods(preparePage(page, size));
+        Page<FoodEntity> foodEntities = foodService.getAllFoods(preparePageSortedASC(page, size));
         return ResponseEntity.ok(foodEntities);
     }
 
@@ -109,7 +104,7 @@ public class FoodController {
     public ResponseEntity<?> searchFoodByType(@RequestParam FoodType type,
                                                  @RequestParam(defaultValue = "0") int page,
                                                  @RequestParam(defaultValue = "10") int size) {
-        Page<FoodEntity> foodEntities = foodService.searchFoodByType(type, preparePage(page, size));
+        Page<FoodEntity> foodEntities = foodService.searchFoodByType(type, preparePageSortedASC(page, size));
         return ResponseEntity.ok(foodEntities);
     }
 
@@ -119,7 +114,7 @@ public class FoodController {
                                                 @RequestParam FoodType type,
                                                 @RequestParam(defaultValue = "0") int page,
                                      @          RequestParam(defaultValue = "10") int size) {
-        Page<FoodEntity> foodEntities = foodService.searchFoodByCategoryAndType(category, type, preparePage(page, size));
+        Page<FoodEntity> foodEntities = foodService.searchFoodByCategoryAndType(category, type, preparePageSortedASC(page, size));
         return ResponseEntity.ok(foodEntities);
     }
 
@@ -127,7 +122,7 @@ public class FoodController {
     public ResponseEntity<?> searchFoodBySubstring(@RequestParam String text,
                                                    @RequestParam(defaultValue = "0") int page,
                                                    @RequestParam(defaultValue = "10") int size) {
-        Page<FoodEntity> foodEntities = foodService.searchFoodBySubstring(text, preparePage(page, size));
+        Page<FoodEntity> foodEntities = foodService.searchFoodBySubstring(text, preparePageSortedASC(page, size));
         return ResponseEntity.ok(foodEntities);
     }
 
@@ -135,7 +130,20 @@ public class FoodController {
     public ResponseEntity<?> searchFoodAddedByCurrentUser(@CurrentUser final UserDetails principal,
                                                           @RequestParam(defaultValue = "0") int page,
                                                           @RequestParam(defaultValue = "10") int size) {
-        Page<FoodEntity> foodEntities = foodService.searchFoodAddedByCurrentUser(principal, preparePage(page, size));
+        Page<FoodEntity> foodEntities = foodService.searchFoodAddedByCurrentUser(principal, preparePageSortedASC(page, size));
         return ResponseEntity.ok(foodEntities);
+    }
+
+    @PatchMapping("/to-delete/mark/{foodId}")
+    public ResponseEntity<?> markFoodToDelete(@Valid @PathVariable("foodId") final Long foodId,
+                                              @CurrentUser final UserDetails principal) {
+        try {
+            foodService.markFoodToDeleteById(foodId, principal);
+            return ResponseEntity.ok().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (UnauthorizedRequestException e) {
+            return ResponseEntity.status(e.getStatus()).build();
+        }
     }
 }
