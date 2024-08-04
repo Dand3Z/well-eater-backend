@@ -1,5 +1,7 @@
 package pl.well_eater.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +23,8 @@ import pl.well_eater.security.model.RoleEnum;
 @RequiredArgsConstructor
 public class FoodService {
 
+    @PersistenceContext
+    private final EntityManager entityManager;
     private final FoodRepository foodRepository;
     private final MacroRepository macroRepository;
 
@@ -104,13 +108,9 @@ public class FoodService {
         foodRepository.save(food);
     }
 
-    public void unmarkFoodToDeleteById(Long foodId, UserDetails principal) {
+    public void unmarkFoodToDeleteById(Long foodId, CreateFoodRequest request, UserDetails principal) {
+        updateFoodById(request, foodId, principal);
         FoodEntity food = getFoodById(foodId);
-
-        if(!isEditableByCurrentUser(food, principal)) {
-            throw new UnauthorizedRequestException();
-        }
-
         food.setToDelete(false);
         food.setAddedBy("system");
         foodRepository.save(food);
