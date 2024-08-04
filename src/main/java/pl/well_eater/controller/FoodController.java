@@ -27,7 +27,7 @@ import pl.well_eater.service.FoodService;
 
 import java.net.URI;
 
-import static pl.well_eater.controller.PageConfig.preparePageSortedASC;
+import static pl.well_eater.controller.PageConfig.preparePageSortedByNameAsc;
 
 @RequiredArgsConstructor
 @RestController
@@ -72,31 +72,18 @@ public class FoodController {
         }
     }
 
-    @DeleteMapping("/delete/{foodId}")
-    public ResponseEntity<?> deleteFoodById(@Valid @PathVariable("foodId") final Long foodId,
-                                            @CurrentUser final UserDetails principal) {
-        try {
-            foodService.deleteFoodById(foodId, principal);
-            return ResponseEntity.noContent().build();
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (UnauthorizedRequestException e) {
-            return ResponseEntity.status(e.getStatus()).build();
-        }
-    }
-
     @GetMapping("/search/by-category")
     public ResponseEntity<?> searchFoodByCategory(@RequestParam FoodCategory category,
                                                      @RequestParam(defaultValue = "0") int page,
                                                      @RequestParam(defaultValue = "10") int size) {
-        Page<FoodEntity> foodEntities = foodService.searchFoodByCategory(category, preparePageSortedASC(page, size));
+        Page<FoodEntity> foodEntities = foodService.searchFoodByCategory(category, preparePageSortedByNameAsc(page, size));
         return ResponseEntity.ok(foodEntities);
     }
 
     @GetMapping("/get-all")
     public ResponseEntity<?> getAllFood(@RequestParam(defaultValue = "0") int page,
                                         @RequestParam(defaultValue = "10") int size) {
-        Page<FoodEntity> foodEntities = foodService.getAllFoods(preparePageSortedASC(page, size));
+        Page<FoodEntity> foodEntities = foodService.getAllFoods(preparePageSortedByNameAsc(page, size));
         return ResponseEntity.ok(foodEntities);
     }
 
@@ -104,7 +91,7 @@ public class FoodController {
     public ResponseEntity<?> searchFoodByType(@RequestParam FoodType type,
                                                  @RequestParam(defaultValue = "0") int page,
                                                  @RequestParam(defaultValue = "10") int size) {
-        Page<FoodEntity> foodEntities = foodService.searchFoodByType(type, preparePageSortedASC(page, size));
+        Page<FoodEntity> foodEntities = foodService.searchFoodByType(type, preparePageSortedByNameAsc(page, size));
         return ResponseEntity.ok(foodEntities);
     }
 
@@ -114,7 +101,7 @@ public class FoodController {
                                                 @RequestParam FoodType type,
                                                 @RequestParam(defaultValue = "0") int page,
                                      @          RequestParam(defaultValue = "10") int size) {
-        Page<FoodEntity> foodEntities = foodService.searchFoodByCategoryAndType(category, type, preparePageSortedASC(page, size));
+        Page<FoodEntity> foodEntities = foodService.searchFoodByCategoryAndType(category, type, preparePageSortedByNameAsc(page, size));
         return ResponseEntity.ok(foodEntities);
     }
 
@@ -122,7 +109,7 @@ public class FoodController {
     public ResponseEntity<?> searchFoodBySubstring(@RequestParam String text,
                                                    @RequestParam(defaultValue = "0") int page,
                                                    @RequestParam(defaultValue = "10") int size) {
-        Page<FoodEntity> foodEntities = foodService.searchFoodBySubstring(text, preparePageSortedASC(page, size));
+        Page<FoodEntity> foodEntities = foodService.searchFoodBySubstring(text, preparePageSortedByNameAsc(page, size));
         return ResponseEntity.ok(foodEntities);
     }
 
@@ -130,7 +117,7 @@ public class FoodController {
     public ResponseEntity<?> searchFoodAddedByCurrentUser(@CurrentUser final UserDetails principal,
                                                           @RequestParam(defaultValue = "0") int page,
                                                           @RequestParam(defaultValue = "10") int size) {
-        Page<FoodEntity> foodEntities = foodService.searchFoodAddedByCurrentUser(principal, preparePageSortedASC(page, size));
+        Page<FoodEntity> foodEntities = foodService.searchFoodAddedByCurrentUser(principal, preparePageSortedByNameAsc(page, size));
         return ResponseEntity.ok(foodEntities);
     }
 
