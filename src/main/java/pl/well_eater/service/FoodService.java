@@ -129,7 +129,7 @@ public class FoodService {
     }
 
     public Page<FoodEntity> searchFoodBySubstring(String substring, Pageable pageable) {
-        return foodRepository.findAllByNameContainingIgnoreCase(substring, pageable);
+        return foodRepository.findAllByNameContainingIgnoreCaseAndToDelete(substring, false, pageable);
     }
 
     public Page<FoodEntity> searchFoodAddedByCurrentUser(UserDetails principal, Pageable pageable) {

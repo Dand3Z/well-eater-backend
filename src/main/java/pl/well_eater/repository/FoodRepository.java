@@ -11,7 +11,7 @@ public interface FoodRepository extends JpaRepository<FoodEntity, Long> {
     Page<FoodEntity> findAllByCategory(FoodCategory category, Pageable pageable);
     Page<FoodEntity> findAllByType(FoodType type, Pageable pageable);
     Page<FoodEntity> findAllByCategoryAndType(FoodCategory category, FoodType type, Pageable pageable);
-    Page<FoodEntity> findAllByNameContainingIgnoreCase(String partialName, Pageable pageable);
+    Page<FoodEntity> findAllByNameContainingIgnoreCaseAndToDelete(String partialName, Boolean toDelete, Pageable pageable);
     Page<FoodEntity> findAllByAddedByAndToDelete(String addedBy, boolean toDelete, Pageable pageable);
     Page<FoodEntity> findAllByToDelete(Boolean toDelete, Pageable pageable);
 }
