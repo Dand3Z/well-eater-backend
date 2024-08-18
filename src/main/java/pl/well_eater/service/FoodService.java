@@ -69,7 +69,8 @@ public class FoodService {
     }
 
     private FoodEntity setFoodParams(FoodEntity food, CreateFoodRequest request) {
-        food.setName(request.getName());
+        String foodName = request.getName();
+        food.setName(foodName.substring(0, 1).toUpperCase() + foodName.substring(1).toLowerCase());
         food.setCategory(request.getCategory());
         food.setType(request.getType());
         food.setUnit(request.getUnit());
