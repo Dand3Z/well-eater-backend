@@ -18,3 +18,6 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
+jwt:
+  expiration-time: 43200000 # 12 hours in milliseconds
+  public-key: MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEh+rjdJXaMWbLxGCAjCiyahNjRr72VQQeIUVKMGRbUpwATSr6zYxBQlkIWskdmFgRkvGNp89Z/zmKF6ncch7v6w

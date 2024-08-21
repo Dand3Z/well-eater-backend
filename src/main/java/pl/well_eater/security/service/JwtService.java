@@ -3,6 +3,7 @@ package pl.well_eater.security.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -19,15 +20,20 @@ import java.util.function.Function;
 
 @Component
 public class JwtService {
-    private static final String PRIVATE_KEY = "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgyUFuCX+A0CbwDhsZB7fwM3CGUe4xKvBcZcgJKgxJ26WhRANCAASH6uN0ldoxZsvEYICMKLJqE2NGvvZVBB4hRUowZFtSnABNKvrNjEFCWQhayR2YWBGS8Y2nz1n/OYoXqdxyHu/r";
-    private static final String PUBLIC_KEY = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEh+rjdJXaMWbLxGCAjCiyahNjRr72VQQeIUVKMGRbUpwATSr6zYxBQlkIWskdmFgRkvGNp89Z/zmKF6ncch7v6w==";
+
+    @Value("${jwt.expiration-time}")
+    private long expirationTime;
+    @Value("${jwt.public-key}")
+    private String publicKey;
+    @Value("${JWT_PRIVATE_KEY}")
+    private String privateKey;
 
     private String createToken(Map<String, Object> claims, String username) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 12 * 60 * 60 * 1000))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(getPrivateKey(), SignatureAlgorithm.ES256)
                 .compact();
     }
@@ -39,7 +45,7 @@ public class JwtService {
 
     private PrivateKey getPrivateKey() {
         try {
-            byte[] keyBytes = Base64.getDecoder().decode(PRIVATE_KEY);
+            byte[] keyBytes = Base64.getDecoder().decode(privateKey);
             PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
             KeyFactory keyFactory = KeyFactory.getInstance("EC");
             return keyFactory.generatePrivate(spec);
@@ -50,7 +56,7 @@ public class JwtService {
 
     private PublicKey getPublicKey() {
         try {
-            byte[] keyBytes = Base64.getDecoder().decode(PUBLIC_KEY);
+            byte[] keyBytes = Base64.getDecoder().decode(publicKey);
             X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
             KeyFactory keyFactory = KeyFactory.getInstance("EC");
             return keyFactory.generatePublic(spec);
