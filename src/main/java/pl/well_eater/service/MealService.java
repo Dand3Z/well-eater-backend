@@ -49,9 +49,6 @@ public class MealService {
 
     Set<DietMealDTO> mapToDietMealDTOs(Collection<MealEntity> meals) {
         Set<DietMealDTO> mealsDtos = mealFoodService.mapToDietMealDTOs(meals);
-//        mealsDtos.forEach(meal -> {
-//            meal.setStats(mealFoodService.calculateMealStats(meal));
-//        });
         return mealsDtos;
     }
 
@@ -98,6 +95,4 @@ public class MealService {
         }
         return mealFoodService.mapToDietMealDTO(mealOptional.get());
     }
-
-    // TODO: add loggers to services
 }

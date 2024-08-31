@@ -43,11 +43,4 @@ public class MealEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "diet_day_id", nullable = false)
     private DietDayEntity dietDay;
-
-//    void test() {
-//        mealFoods.stream().forEach(mf -> {
-//            mf.getMeal();
-//            mf.getAmount();
-//        });
-//    }
 }

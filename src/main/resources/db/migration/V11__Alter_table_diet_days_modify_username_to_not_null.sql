@@ -1,0 +1,1 @@
+ALTER TABLE diet_days MODIFY username VARCHAR(255) NOT NULL;
