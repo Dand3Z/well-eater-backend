@@ -38,7 +38,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationProvider authenticationProvider) throws Exception {
         return http.authorizeHttpRequests((auth) ->
-                auth.requestMatchers("/auth/**", "/", "/error", "/api/food/search/**").permitAll()
+                auth.requestMatchers("/auth/**", "/api/food/search/**").permitAll()
                     .requestMatchers("/api/**").hasRole(RoleEnum.ROLE_USER.value)
                     .requestMatchers("/admin/**").hasRole(RoleEnum.ROLE_ADMIN.value)
                 )
