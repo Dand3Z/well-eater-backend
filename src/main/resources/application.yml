@@ -11,7 +11,7 @@ spring:
   datasource:
     url: jdbc:mysql://${WELL_EATER_DATABASE_HOST:localhost}:${WELL_EATER_DATABASE_PORT:3306}/${WELL_EATER_DATABASE:well_eater}
     username: ${DATABASE_USER:root}
-    password: ${DATABASE_PASSWORD:root}
+    password: ${DATABASE_PASSWORD:rootroot}
   jpa:
     hibernate:
       ddl-auto: validate
