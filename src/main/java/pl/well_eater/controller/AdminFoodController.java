@@ -18,7 +18,7 @@ import static pl.well_eater.controller.PageConfig.preparePageSortedByIdAsc;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/admin/food")
+@RequestMapping("/api/admin/food")
 public class AdminFoodController {
 
     private final FoodService foodService;

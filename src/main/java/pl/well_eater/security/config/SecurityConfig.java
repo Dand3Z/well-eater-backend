@@ -38,9 +38,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationProvider authenticationProvider) throws Exception {
         return http.authorizeHttpRequests((auth) ->
-                auth.requestMatchers("/auth/**", "/api/food/search/**").permitAll()
-                    .requestMatchers("/api/**").hasRole(RoleEnum.ROLE_USER.value)
-                    .requestMatchers("/admin/**").hasRole(RoleEnum.ROLE_ADMIN.value)
+                auth.requestMatchers("/api/auth/**", "/api/user/food/search/**").permitAll()
+                    .requestMatchers("/api/user/**").hasRole(RoleEnum.ROLE_USER.value)
+                    .requestMatchers("/api/admin/**").hasRole(RoleEnum.ROLE_ADMIN.value)
                 )
                 .formLogin(AbstractHttpConfigurer::disable)
                 .exceptionHandling((exceptionHandling) -> exceptionHandling.authenticationEntryPoint(new RestAuthenticationEntryPoint()))
