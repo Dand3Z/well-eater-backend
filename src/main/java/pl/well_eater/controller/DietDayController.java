@@ -18,7 +18,7 @@ import java.time.LocalDate;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/diet-day")
+@RequestMapping("/api/user/diet-day")
 public class DietDayController {
 
     public final DietDayFacade dietDayFacade;

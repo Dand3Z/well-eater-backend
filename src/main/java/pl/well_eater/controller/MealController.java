@@ -18,7 +18,7 @@ import java.net.URI;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/meal")
+@RequestMapping("/api/user/meal")
 public class MealController {
 
     private final MealService mealService;

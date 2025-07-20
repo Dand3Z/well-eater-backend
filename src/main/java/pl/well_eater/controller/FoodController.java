@@ -30,7 +30,7 @@ import static pl.well_eater.controller.PageConfig.preparePageSortedByNameAsc;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/food")
+@RequestMapping("/api/user/food")
 public class FoodController {
 
     private final FoodService foodService;

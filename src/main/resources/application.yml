@@ -1,5 +1,6 @@
 server:
   port: ${WELL_EATER_BACKEND_APP_PORT:8080}
+  address: "::"
   tomcat:
     uri-encoding: UTF-8
 logging:
@@ -17,7 +18,7 @@ spring:
       ddl-auto: validate
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.MySQLDialect
 jwt:
   expiration-time: 43200000 # 12 hours in milliseconds
   public-key: MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEh+rjdJXaMWbLxGCAjCiyahNjRr72VQQeIUVKMGRbUpwATSr6zYxBQlkIWskdmFgRkvGNp89Z/zmKF6ncch7v6w
