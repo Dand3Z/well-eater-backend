@@ -25,7 +25,7 @@ public class JwtService {
     private long expirationTime;
     @Value("${jwt.public-key}")
     private String publicKey;
-    @Value("${JWT_PRIVATE_KEY}")
+    @Value("${WELL_EATER_JWT_PRIVATE_KEY}")
     private String privateKey;
 
     private String createToken(Map<String, Object> claims, String username) {
