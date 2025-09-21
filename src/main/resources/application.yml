@@ -13,6 +13,13 @@ spring:
     url: jdbc:mysql://${WELL_EATER_DATABASE_HOST:localhost}:${WELL_EATER_DATABASE_PORT:3306}/${WELL_EATER_DATABASE:well_eater}
     username: ${WELL_EATER_DATABASE_USER:root}
     password: ${WELL_EATER_DATABASE_PASSWORD:rootroot}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      max-lifetime: 28500000    # 7h 55 min
+      idle-timeout: 600000      # 10 min
+      keepalive-time: 300000    # 5 min
+      validation-timeout: 5000  # 5 sec
   jpa:
     hibernate:
       ddl-auto: validate
@@ -20,5 +27,5 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
 jwt:
-  expiration-time: 43200000 # 12 hours in milliseconds
+  expiration-time: 43200000 # 12 hours
   public-key: MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEh+rjdJXaMWbLxGCAjCiyahNjRr72VQQeIUVKMGRbUpwATSr6zYxBQlkIWskdmFgRkvGNp89Z/zmKF6ncch7v6w
