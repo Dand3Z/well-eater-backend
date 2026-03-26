@@ -71,7 +71,7 @@ public class UserController {
 
         } catch (BadCredentialsException e) {
             log.error("Authentication failed for user {}", request.getUsername());
-            return ResponseEntity.badRequest().body("Invalid username or password");
+            return ResponseEntity.status(401).body("Invalid username or password");
         }
     }
 
